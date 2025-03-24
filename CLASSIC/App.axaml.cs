@@ -1,28 +1,51 @@
+// App.axaml.cs
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using CLASSIC.Models;
+using CLASSIC.Services;
 using CLASSIC.ViewModels;
 using CLASSIC.Views;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace CLASSIC;
-
-public partial class App : Application
+namespace CLASSIC
 {
-    public override void Initialize()
+    public partial class App : Application
     {
-        AvaloniaXamlLoader.Load(this);
-    }
-
-    public override void OnFrameworkInitializationCompleted()
-    {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        private IServiceProvider _serviceProvider;
+        
+        public override void Initialize()
         {
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainWindowViewModel(),
-            };
+            AvaloniaXamlLoader.Load(this);
         }
 
-        base.OnFrameworkInitializationCompleted();
+        public override void OnFrameworkInitializationCompleted()
+        {
+            // Configure services
+            var services = new ServiceCollection();
+            
+            // Register services
+            services.AddSingleton<Logger>();
+            services.AddSingleton<GameVariables>();
+            services.AddSingleton<ConfigurationService>();
+            services.AddSingleton<GamePathService>();
+            services.AddSingleton<GameIntegrityService>();
+            
+            // Register view models
+            services.AddTransient<MainViewModel>();
+            
+            _serviceProvider = services.BuildServiceProvider();
+            
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                desktop.MainWindow = new MainWindow
+                {
+                    DataContext = _serviceProvider.GetRequiredService<MainViewModel>()
+                };
+            }
+
+            base.OnFrameworkInitializationCompleted();
+        }
     }
 }

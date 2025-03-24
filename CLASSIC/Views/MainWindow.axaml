@@ -1,20 +1,309 @@
+<!-- Views/MainWindow.axaml -->
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:CLASSIC.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="950"
         x:Class="CLASSIC.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="CLASSIC">
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/classic-icon.ico"
+        Title="Crash Log Auto Scanner &amp; Setup Integrity Checker"
+        Width="700" Height="950" CanResize="False"
+        Background="#2b2b2b">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
+        <vm:MainViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
+    <Window.Styles>
+        <!-- Common Styles -->
+        <Style Selector="Button">
+            <Setter Property="Background" Value="#3c3c3c"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#5c5c5c"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="CornerRadius" Value="5"/>
+        </Style>
+        
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="#3c3c3c"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#5c5c5c"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="4,8"/>
+            <Setter Property="MinHeight" Value="24"/>
+        </Style>
+        
+        <Style Selector="CheckBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#3c3c3c"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#5c5c5c"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="CornerRadius" Value="5"/>
+        </Style>
+        
+        <Style Selector="TabControl">
+            <Setter Property="Background" Value="#2b2b2b"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        
+        <Style Selector="TabItem">
+            <Setter Property="Background" Value="#3c3c3c"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderBrush" Value="#5c5c5c"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5,5,0,0"/>
+        </Style>
+        
+        <Style Selector="Label">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        
+        <!-- Custom Styles -->
+        <Style Selector="Button.MainButton">
+            <Setter Property="Background" Value="#ffffffE6"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+        
+        <Style Selector="Button:disabled">
+            <Setter Property="Foreground" Value="Gray"/>
+            <Setter Property="Background" Value="#1a1a1abf"/>
+        </Style>
+        
+        <Style Selector="Button.BottomButton">
+            <Setter Property="Background" Value="#1a1a1abf"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Height" Value="32"/>
+        </Style>
+        
+        <Style Selector="Button.ArticleButton">
+            <Setter Property="Background" Value="#1a1a1abf"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Width" Value="180"/>
+            <Setter Property="Height" Value="50"/>
+        </Style>
+    </Window.Styles>
+    
+    <TabControl Margin="10">
+        <TabItem Header="MAIN OPTIONS">
+            <ScrollViewer>
+                <StackPanel Margin="20,10" Spacing="10">
+                    <!-- Folder Selection Section -->
+                    <DockPanel>
+                        <Label Content="STAGING MODS FOLDER" Width="180" VerticalAlignment="Center"/>
+                        <Button Content="Browse Folder" Command="{Binding SelectModsFolderCommand}" DockPanel.Dock="Right" Margin="5,0,0,0"/>
+                        <TextBox Text="{Binding ModsFolderPath}" Margin="5,0" ToolTip="Select the folder where you stage your mods."
+                                 Watermark="Optional: Select the folder where you stage your mods."/>
+                    </DockPanel>
+                    
+                    <DockPanel>
+                        <Label Content="CUSTOM SCAN FOLDER" Width="180" VerticalAlignment="Center"/>
+                        <Button Content="Browse Folder" Command="{Binding SelectCustomScanFolderCommand}" DockPanel.Dock="Right" Margin="5,0,0,0"/>
+                        <TextBox Text="{Binding CustomScanPath}" Margin="5,0" ToolTip="Select a custom folder to scan for log files."
+                                 Watermark="Optional: Select a custom folder to scan for log files."/>
+                    </DockPanel>
+                    
+                    <!-- Separator -->
+                    <Separator/>
+                    
+                    <!-- Main Buttons -->
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto" Margin="0,5">
+                        <Button Grid.Column="0" Content="SCAN CRASH LOGS" Classes="MainButton"
+                                Command="{Binding ScanCrashLogsCommand}" Margin="0,0,5,0"
+                                IsEnabled="{Binding !IsBusy}"/>
+                        <Button Grid.Column="1" Content="SCAN GAME FILES" Classes="MainButton"
+                                Command="{Binding ScanGameFilesCommand}" Margin="5,0,0,0"
+                                IsEnabled="{Binding !IsBusy}"/>
+                    </Grid>
+                    
+                    <!-- Bottom Row Buttons -->
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto" Margin="0,5">
+                        <Button Grid.Column="0" Content="CHANGE INI PATH" Classes="BottomButton" 
+                                Margin="0,0,5,0" Command="{Binding SelectCustomScanFolderCommand}"/>
+                        <Button Grid.Column="1" Content="OPEN CLASSIC SETTINGS" Classes="BottomButton" 
+                                Margin="5,0" Command="{Binding OpenSettingsFileCommand}"/>
+                        <Button Grid.Column="2" Content="CHECK UPDATES" Classes="BottomButton" 
+                                Margin="5,0,0,0" Command="{Binding CheckUpdatesCommand}"/>
+                    </Grid>
+                    
+                    <!-- Separator -->
+                    <Separator/>
+                    
+                    <!-- Settings Section -->
+                    <Label Content="CLASSIC SETTINGS" HorizontalAlignment="Center" FontWeight="Bold" FontSize="14"/>
+                    
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,10">
+                        <CheckBox Grid.Row="0" Grid.Column="0" Content="FCX MODE" IsChecked="{Binding FCXMode}"/>
+                        <CheckBox Grid.Row="0" Grid.Column="1" Content="SIMPLIFY LOGS" IsChecked="{Binding SimplifyLogs}"/>
+                        <CheckBox Grid.Row="0" Grid.Column="2" Content="UPDATE CHECK" IsChecked="{Binding UpdateCheck}"/>
+                        <CheckBox Grid.Row="1" Grid.Column="0" Content="VR MODE" IsChecked="{Binding VRMode}"/>
+                        <CheckBox Grid.Row="1" Grid.Column="1" Content="SHOW FID VALUES" IsChecked="{Binding ShowFormIDValues}"/>
+                        <CheckBox Grid.Row="1" Grid.Column="2" Content="MOVE INVALID LOGS" IsChecked="{Binding MoveUnsolvedLogs}"/>
+                        <CheckBox Grid.Row="2" Grid.Column="0" Content="AUDIO NOTIFICATIONS" IsChecked="{Binding AudioNotifications}"/>
+                    </Grid>
+                    
+                    <DockPanel Margin="0,10">
+                        <Label Content="Update Source" VerticalAlignment="Center"/>
+                        <ComboBox Margin="10,0,0,0" Items="{Binding UpdateSourceOptions}" 
+                                  SelectedItem="{Binding UpdateSource}"
+                                  HorizontalAlignment="Left" Width="120"
+                                  ToolTip="Select the source to check for updates. Nexus = stable, GitHub = latest, Both = check both"/>
+                    </DockPanel>
+                    
+                    <!-- Separator -->
+                    <Separator/>
+                    
+                    <!-- Articles Section -->
+                    <Label Content="ARTICLES / WEBSITES / NEXUS LINKS" HorizontalAlignment="Center" 
+                           FontWeight="Bold" FontSize="14"/>
+                           
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,10" HorizontalAlignment="Center">
+                        <Button Grid.Row="0" Grid.Column="0" Content="BUFFOUT 4 INSTALLATION" Classes="ArticleButton" Margin="5"
+                                Command="{Binding OpenUrlCommand}" CommandParameter="https://www.nexusmods.com/fallout4/articles/3115"/>
+                        <Button Grid.Row="0" Grid.Column="1" Content="FALLOUT 4 SETUP TIPS" Classes="ArticleButton" Margin="5"
+                                Command="{Binding OpenUrlCommand}" CommandParameter="https://www.nexusmods.com/fallout4/articles/4141"/>
+                        <Button Grid.Row="0" Grid.Column="2" Content="IMPORTANT PATCHES LIST" Classes="ArticleButton" Margin="5"
+                                Command="{Binding OpenUrlCommand}" CommandParameter="https://www.nexusmods.com/fallout4/articles/3769"/>
+                        <Button Grid.Row="1" Grid.Column="0" Content="BUFFOUT 4 NEXUS PAGE" Classes="ArticleButton" Margin="5"
+                                Command="{Binding OpenUrlCommand}" CommandParameter="https://www.nexusmods.com/fallout4/mods/47359"/>
+                        <Button Grid.Row="1" Grid.Column="1" Content="CLASSIC NEXUS PAGE" Classes="ArticleButton" Margin="5"
+                                Command="{Binding OpenUrlCommand}" CommandParameter="https://www.nexusmods.com/fallout4/mods/56255"/>
+                        <Button Grid.Row="1" Grid.Column="2" Content="CLASSIC GITHUB" Classes="ArticleButton" Margin="5"
+                                Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/GuidanceOfGrace/CLASSIC-Fallout4"/>
+                        <Button Grid.Row="2" Grid.Column="0" Content="DDS TEXTURE SCANNER" Classes="ArticleButton" Margin="5"
+                                Command="{Binding OpenUrlCommand}" CommandParameter="https://www.nexusmods.com/fallout4/mods/71588"/>
+                        <Button Grid.Row="2" Grid.Column="1" Content="BETHINI PIE" Classes="ArticleButton" Margin="5"
+                                Command="{Binding OpenUrlCommand}" CommandParameter="https://www.nexusmods.com/site/mods/631"/>
+                        <Button Grid.Row="2" Grid.Column="2" Content="WRYE BASH TOOL" Classes="ArticleButton" Margin="5"
+                                Command="{Binding OpenUrlCommand}" CommandParameter="https://www.nexusmods.com/fallout4/mods/20032"/>
+                    </Grid>
+                    
+                    <!-- Separator -->
+                    <Separator/>
+                    
+                    <!-- Bottom Buttons -->
+                    <Grid ColumnDefinitions="Auto,Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
+                        <Button Grid.Column="0" Content="ABOUT" Width="80" Height="30" Classes="BottomButton"
+                                Command="{Binding ShowAboutCommand}"/>
+                        <Button Grid.Column="1" Content="HELP" Width="80" Height="30" Classes="BottomButton" 
+                                Margin="5,0" Command="{Binding ShowHelpCommand}"/>
+                        <Button Grid.Column="2" Content="START PAPYRUS MONITORING" Height="30" Classes="BottomButton"
+                                Background="#2DED8A" Foreground="Black" BorderBrush="Black" FontWeight="Bold"
+                                IsEnabled="False"/>
+                        <Button Grid.Column="3" Content="EXIT" Width="80" Height="30" Classes="BottomButton" 
+                                Click="ExitButton_Click"/>
+                    </Grid>
+                    
+                    <!-- Output Text -->
+                    <TextBox Text="{Binding OutputText}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                             FontFamily="Cascadia Mono, Consolas, monospace" FontSize="13"
+                             Background="#1a1a1abf" BorderBrush="White" CornerRadius="10"
+                             Height="300" VerticalAlignment="Stretch"/>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+        
+        <TabItem Header="FILE BACKUP">
+            <ScrollViewer>
+                <StackPanel Margin="20,10" Spacing="10">
+                    <!-- Backup Instructions -->
+                    <Label Content="BACKUP > Backup files from the game folder into the CLASSIC Backup folder."/>
+                    <Label Content="RESTORE > Restore file backup from the CLASSIC Backup folder into the game folder."/>
+                    <Label Content="REMOVE > Remove files only from the game folder without removing existing backups."/>
+                    
+                    <!-- XSE Backup Section -->
+                    <Separator/>
+                    <Label Content="XSE" HorizontalAlignment="Center"/>
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
+                        <Button Grid.Column="0" Content="BACKUP XSE" 
+                                Command="{Binding BackupCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=XSE}"/>
+                        <Button Grid.Column="1" Content="RESTORE XSE" 
+                                Command="{Binding RestoreCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=XSE}"/>
+                        <Button Grid.Column="2" Content="REMOVE XSE" 
+                                Command="{Binding RemoveCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=XSE}"/>
+                    </Grid>
+                    
+                    <!-- RESHADE Backup Section -->
+                    <Separator/>
+                    <Label Content="RESHADE" HorizontalAlignment="Center"/>
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
+                        <Button Grid.Column="0" Content="BACKUP RESHADE" 
+                                Command="{Binding BackupCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=RESHADE}"/>
+                        <Button Grid.Column="1" Content="RESTORE RESHADE" 
+                                Command="{Binding RestoreCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=RESHADE}"/>
+                        <Button Grid.Column="2" Content="REMOVE RESHADE" 
+                                Command="{Binding RemoveCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=RESHADE}"/>
+                    </Grid>
+                    
+                    <!-- VULKAN Backup Section -->
+                    <Separator/>
+                    <Label Content="VULKAN" HorizontalAlignment="Center"/>
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
+                        <Button Grid.Column="0" Content="BACKUP VULKAN" 
+                                Command="{Binding BackupCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=VULKAN}"/>
+                        <Button Grid.Column="1" Content="RESTORE VULKAN" 
+                                Command="{Binding RestoreCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=VULKAN}"/>
+                        <Button Grid.Column="2" Content="REMOVE VULKAN" 
+                                Command="{Binding RemoveCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=VULKAN}"/>
+                    </Grid>
+                    
+                    <!-- ENB Backup Section -->
+                    <Separator/>
+                    <Label Content="ENB" HorizontalAlignment="Center"/>
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
+                        <Button Grid.Column="0" Content="BACKUP ENB" 
+                                Command="{Binding BackupCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=ENB}"/>
+                        <Button Grid.Column="1" Content="RESTORE ENB" 
+                                Command="{Binding RestoreCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=ENB}"/>
+                        <Button Grid.Column="2" Content="REMOVE ENB" 
+                                Command="{Binding RemoveCommand}" 
+                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=ENB}"/>
+                    </Grid>
+                    
+                    <!-- Open Backups Folder Button -->
+                    <Button Content="OPEN CLASSIC BACKUPS" 
+                            HorizontalAlignment="Stretch" 
+                            Command="{Binding OpenBackupFolderCommand}"
+                            Margin="0,20,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+    </TabControl>
 </Window>
