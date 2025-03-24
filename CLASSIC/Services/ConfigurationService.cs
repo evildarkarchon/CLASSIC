@@ -10,12 +10,12 @@
         {
             public class ConfigurationService
             {
-                private readonly Dictionary<string, Dictionary<string, object>> _yamlCache = new();
+                private readonly Dictionary<string, Dictionary<string, object?>> _yamlCache = new();
                 private readonly Dictionary<string, DateTime> _fileModTimes = new();
                 private readonly Logger _logger;
         
                 public GameId GameId { get; private set; } = GameId.Fallout4;
-                public string VRSuffix { get; private set; } = string.Empty;
+                public string VrSuffix { get; private set; }
         
                 public ConfigurationService(Logger logger)
                 {
@@ -26,7 +26,7 @@
         
                     // Set VR mode based on settings
                     var vrMode = GetSetting<bool>(YamlStore.Settings, "CLASSIC_Settings.VR Mode");
-                    VRSuffix = vrMode ? "VR" : string.Empty;
+                    VrSuffix = vrMode ? "VR" : string.Empty;
                 }
         
                 private void EnsureSettingsExist()
@@ -69,11 +69,11 @@
                 {
                     var localPath = Path.Combine(
                         AppDomain.CurrentDomain.BaseDirectory,
-                        $"CLASSIC Data/CLASSIC {GameId}{VRSuffix} Local.yaml");
+                        $"CLASSIC Data/CLASSIC {GameId}{VrSuffix} Local.yaml");
         
                     if (!File.Exists(localPath))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(localPath));
+                        Directory.CreateDirectory(Path.GetDirectoryName(localPath) ?? throw new InvalidOperationException());
         
                         var defaultLocalYaml = GetSetting<string>(YamlStore.Main, "CLASSIC_Info.default_localyaml");
         
@@ -84,7 +84,7 @@
                     }
                 }
         
-                public T GetSetting<T>(YamlStore store, string keyPath, T defaultValue = default)
+                public T? GetSetting<T>(YamlStore store, string keyPath, T? defaultValue = default)
                 {
                     try
                     {
@@ -114,14 +114,14 @@
                         try
                         {
                             // Try conversion for common types
-                            if (typeof(T) == typeof(bool) && currentValue != null)
+                            if (typeof(T) == typeof(bool))
                                 return (T)(object)Convert.ToBoolean(currentValue);
         
-                            if (typeof(T) == typeof(int) && currentValue != null)
+                            if (typeof(T) == typeof(int))
                                 return (T)(object)Convert.ToInt32(currentValue);
         
-                            if (typeof(T) == typeof(string) && currentValue != null)
-                                return (T)(object)currentValue.ToString();
+                            if (typeof(T) == typeof(string))
+                                return (T)((object)currentValue.ToString()!);
         
                             if (typeof(T) == typeof(DirectoryInfo) && currentValue is string path)
                                 return (T)(object)new DirectoryInfo(path);
@@ -144,7 +144,7 @@
                     }
                 }
         
-                public void SetSetting<T>(YamlStore store, string keyPath, T value)
+                public void SetSetting<T>(YamlStore store, string keyPath, T? value)
                 {
                     try
                     {
@@ -152,22 +152,22 @@
                         var data = LoadYaml(yamlPath);
         
                         var keys = keyPath.Split('.');
-                        Dictionary<string, object> currentDict = data;
+                        Dictionary<string, object?> currentDict = data;
         
                         // Navigate to final container
                         for (int i = 0; i < keys.Length - 1; i++)
                         {
                             var key = keys[i];
         
-                            if (!currentDict.TryGetValue(key, out var nextObj) || !(nextObj is Dictionary<string, object>))
+                            if (!currentDict.TryGetValue(key, out var nextObj) || !(nextObj is Dictionary<string, object> obj))
                             {
-                                var newDict = new Dictionary<string, object>();
+                                var newDict = new Dictionary<string, object?>();
                                 currentDict[key] = newDict;
                                 currentDict = newDict;
                             }
                             else
                             {
-                                currentDict = (Dictionary<string, object>)nextObj;
+                                currentDict = obj!;
                             }
                         }
         
@@ -191,16 +191,16 @@
                         YamlStore.Settings => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CLASSIC Settings.yaml"),
                         YamlStore.Ignore => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CLASSIC Ignore.yaml"),
                         YamlStore.Game => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"CLASSIC Data/databases/CLASSIC {GameId}.yaml"),
-                        YamlStore.GameLocal => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"CLASSIC Data/CLASSIC {GameId}{VRSuffix} Local.yaml"),
+                        YamlStore.GameLocal => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"CLASSIC Data/CLASSIC {GameId}{VrSuffix} Local.yaml"),
                         YamlStore.Test => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tests/test_settings.yaml"),
                         _ => throw new NotImplementedException($"YAML store {store} not implemented")
                     };
                 }
         
-                private Dictionary<string, object> LoadYaml(string yamlPath)
+                private Dictionary<string, object?> LoadYaml(string yamlPath)
                 {
                     if (!File.Exists(yamlPath))
-                        return new Dictionary<string, object>();
+                        return new Dictionary<string, object?>();
         
                     var lastWriteTime = File.GetLastWriteTime(yamlPath);
         
@@ -218,16 +218,16 @@
                         .WithNamingConvention(CamelCaseNamingConvention.Instance)
                         .Build();
         
-                    var yamlObject = deserializer.Deserialize<Dictionary<string, object>>(reader);
+                    Dictionary<string, object> yamlObject = deserializer.Deserialize<Dictionary<string, object>>(reader);
         
                     // Update cache
-                    _yamlCache[yamlPath] = yamlObject;
+                    _yamlCache[yamlPath] = yamlObject!;
                     _fileModTimes[yamlPath] = lastWriteTime;
         
-                    return yamlObject;
+                    return yamlObject!;
                 }
         
-                private void SaveYaml(string yamlPath, Dictionary<string, object> data)
+                private void SaveYaml(string yamlPath, Dictionary<string, object?> data)
                 {
                     var serializer = new SerializerBuilder()
                         .WithNamingConvention(CamelCaseNamingConvention.Instance)

@@ -8,23 +8,12 @@ using CLASSIC.Models;
 
 namespace CLASSIC.Services
 {
-    public class GamePathService
+    public class GamePathService(ConfigurationService config, Logger logger, GameVariables gameVars)
     {
-        private readonly ConfigurationService _config;
-        private readonly Logger _logger;
-        private readonly GameVariables _gameVars;
-        
-        public GamePathService(ConfigurationService config, Logger logger, GameVariables gameVars)
-        {
-            _config = config;
-            _logger = logger;
-            _gameVars = gameVars;
-        }
-        
         public void FindGamePath()
         {
-            _logger.Debug("Initiated game path check");
-            string path = null;
+            logger.Debug("Initiated game path check");
+            string? path = null;
             
             // Try registry lookup
             try
@@ -32,7 +21,7 @@ namespace CLASSIC.Services
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     using var key = Registry.LocalMachine.OpenSubKey(
-                        $@"SOFTWARE\WOW6432Node\Bethesda Softworks\{_gameVars.GameNameWithVR}");
+                        $@"SOFTWARE\WOW6432Node\Bethesda Softworks\{gameVars.GameNameWithVr}");
                     
                     if (key != null)
                     {
@@ -52,35 +41,35 @@ namespace CLASSIC.Services
             }
             catch (Exception ex)
             {
-                _logger.Warning($"Registry lookup failed: {ex.Message}");
+                logger.Warning($"Registry lookup failed: {ex.Message}");
             }
             
             // Validate the found path
             if (!string.IsNullOrEmpty(path))
             {
-                var exePath = Path.Combine(path, $"{_gameVars.GameNameWithVR}.exe");
+                var exePath = Path.Combine(path, $"{gameVars.GameNameWithVr}.exe");
                 
                 if (File.Exists(exePath))
                 {
-                    _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Root_Folder_Game", path);
-                    _logger.Info($"Game path found in registry: {path}");
+                    config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Root_Folder_Game", path);
+                    logger.Info($"Game path found in registry: {path}");
                     return;
                 }
             }
             
             // If registry lookup fails, try XSE log file
-            FindGamePathFromXSELog();
+            FindGamePathFromXseLog();
         }
         
-        private void FindGamePathFromXSELog()
+        private void FindGamePathFromXseLog()
         {
-            var xseFile = _config.GetSetting<string>(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Docs_File_XSE");
-            var xseAcronym = _config.GetSetting<string>(YamlStore.Game, $"Game{_gameVars.VR}_Info.XSE_Acronym");
-            var xseAcronymBase = _config.GetSetting<string>(YamlStore.Game, "Game_Info.XSE_Acronym");
+            var xseFile = config.GetSetting<string>(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Docs_File_XSE");
+            var xseAcronym = config.GetSetting<string>(YamlStore.Game, $"Game{gameVars.Vr}_Info.XSE_Acronym");
+            var xseAcronymBase = config.GetSetting<string>(YamlStore.Game, "Game_Info.XSE_Acronym");
             
             if (string.IsNullOrEmpty(xseFile) || !File.Exists(xseFile))
             {
-                _logger.Warning($"The {xseAcronym?.ToLower()}.log file is missing from your game documents folder!");
+                logger.Warning($"The {xseAcronym?.ToLower()}.log file is missing from your game documents folder!");
                 return;
             }
             
@@ -93,12 +82,12 @@ namespace CLASSIC.Services
                         var gamePath = line.Split('=', 2)[1].Trim()
                             .Replace($"\\Data\\{xseAcronymBase}\\Plugins", "");
                         
-                        var exePath = Path.Combine(gamePath, $"{_gameVars.GameNameWithVR}.exe");
+                        var exePath = Path.Combine(gamePath, $"{gameVars.GameNameWithVr}.exe");
                         
                         if (File.Exists(exePath))
                         {
-                            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Root_Folder_Game", gamePath);
-                            _logger.Info($"Game path found in XSE log: {gamePath}");
+                            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Root_Folder_Game", gamePath);
+                            logger.Info($"Game path found in XSE log: {gamePath}");
                             return;
                         }
                     }
@@ -106,14 +95,14 @@ namespace CLASSIC.Services
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to read XSE log: {ex.Message}");
+                logger.Error($"Failed to read XSE log: {ex.Message}");
             }
         }
         
         public void FindDocsPath()
         {
-            _logger.Debug("Initiated docs path check");
-            string docsPath = null;
+            logger.Debug("Initiated docs path check");
+            string? docsPath = null;
             
             // Try to get Documents path from registry
             try
@@ -131,7 +120,7 @@ namespace CLASSIC.Services
             }
             catch (Exception ex)
             {
-                _logger.Warning($"Failed to get Documents path from registry: {ex.Message}");
+                logger.Warning($"Failed to get Documents path from registry: {ex.Message}");
             }
             
             // Fallback to user profile
@@ -141,45 +130,45 @@ namespace CLASSIC.Services
             }
             
             // Construct the game's document path
-            var docsName = _config.GetSetting<string>(YamlStore.Game, $"Game{_gameVars.VR}_Info.Main_Docs_Name");
+            var docsName = config.GetSetting<string>(YamlStore.Game, $"Game{gameVars.Vr}_Info.Main_Docs_Name");
             
             if (!string.IsNullOrEmpty(docsName))
             {
                 var gameDocsPath = Path.Combine(docsPath, "My Games", docsName);
-                _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Root_Folder_Docs", gameDocsPath);
-                _logger.Info($"Game docs path set to: {gameDocsPath}");
+                config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Root_Folder_Docs", gameDocsPath);
+                logger.Info($"Game docs path set to: {gameDocsPath}");
             }
         }
         
         public void GenerateGamePaths()
         {
-            _logger.Debug("Initiated game path generation");
+            logger.Debug("Initiated game path generation");
             
-            var gamePath = _config.GetSetting<string>(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Root_Folder_Game");
-            var xseAcronymBase = _config.GetSetting<string>(YamlStore.Game, "Game_Info.XSE_Acronym");
+            var gamePath = config.GetSetting<string>(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Root_Folder_Game");
+            var xseAcronymBase = config.GetSetting<string>(YamlStore.Game, "Game_Info.XSE_Acronym");
             
             if (string.IsNullOrEmpty(gamePath) || string.IsNullOrEmpty(xseAcronymBase))
             {
-                _logger.Error("Game path or XSE acronym is missing");
+                logger.Error("Game path or XSE acronym is missing");
                 return;
             }
             
             // Set data folder paths
-            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_Folder_Data", 
+            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_Folder_Data", 
                 Path.Combine(gamePath, "Data"));
                 
-            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_Folder_Scripts", 
+            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_Folder_Scripts", 
                 Path.Combine(gamePath, "Data", "Scripts"));
                 
-            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_Folder_Plugins", 
+            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_Folder_Plugins", 
                 Path.Combine(gamePath, "Data", xseAcronymBase, "Plugins"));
                 
             // Set executable and INI paths
-            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_File_SteamINI", 
+            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_File_SteamINI", 
                 Path.Combine(gamePath, "steam_api.ini"));
                 
-            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_File_EXE", 
-                Path.Combine(gamePath, $"{_gameVars.GameNameWithVR}.exe"));
+            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_File_EXE", 
+                Path.Combine(gamePath, $"{gameVars.GameNameWithVr}.exe"));
                 
             // Set address library paths based on game version
             SetAddressLibraryPaths();
@@ -187,53 +176,56 @@ namespace CLASSIC.Services
         
         private void SetAddressLibraryPaths()
         {
-            var exePath = _config.GetSetting<string>(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_File_EXE");
-            var pluginsPath = _config.GetSetting<string>(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_Folder_Plugins");
+            var exePath = config.GetSetting<string>(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_File_EXE");
+            var pluginsPath = config.GetSetting<string>(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_Folder_Plugins");
             
             if (string.IsNullOrEmpty(exePath) || string.IsNullOrEmpty(pluginsPath))
                 return;
                 
             var gameVersion = GetGameVersionFromFile(exePath);
-            var xseAcronymBase = _config.GetSetting<string>(YamlStore.Game, "Game_Info.XSE_Acronym");
+            var xseAcronymBase = config.GetSetting<string>(YamlStore.Game, "Game_Info.XSE_Acronym");
             
-            if (_gameVars.Game == GameId.Fallout4)
+            if (gameVars.Game == GameId.Fallout4)
             {
-                if (string.IsNullOrEmpty(_gameVars.VR))
+                if (string.IsNullOrEmpty(gameVars.Vr))
                 {
                     // Regular Fallout 4
-                    if (gameVersion == Constants.OGVersion || gameVersion == Constants.NullVersion)
+                    if (gameVersion == Constants.OgVersion || gameVersion == Constants.NullVersion)
                     {
-                        _config.SetSetting(YamlStore.GameLocal, "Game_Info.Game_File_AddressLib", 
+                        config.SetSetting(YamlStore.GameLocal, "Game_Info.Game_File_AddressLib", 
                             Path.Combine(pluginsPath, "version-1-10-163-0.bin"));
                     }
-                    else if (gameVersion == Constants.NGVersion)
+                    else if (gameVersion == Constants.NgVersion)
                     {
-                        _config.SetSetting(YamlStore.GameLocal, "Game_Info.Game_File_AddressLib", 
+                        config.SetSetting(YamlStore.GameLocal, "Game_Info.Game_File_AddressLib", 
                             Path.Combine(pluginsPath, "version-1-10-984-0.bin"));
                     }
                 }
                 else
                 {
                     // Fallout 4 VR
-                    _config.SetSetting(YamlStore.GameLocal, "GameVR_Info.Game_File_AddressLib", 
+                    config.SetSetting(YamlStore.GameLocal, "GameVR_Info.Game_File_AddressLib", 
                         Path.Combine(pluginsPath, "version-1-2-72-0.csv"));
                 }
             }
         }
         
-        private string GetGameVersionFromFile(string exePath)
+        private string GetGameVersionFromFile(string? exePath)
         {
             try
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    var versionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(exePath);
-                    return $"{versionInfo.FileMajorPart}.{versionInfo.FileMinorPart}.{versionInfo.FileBuildPart}.{versionInfo.FilePrivatePart}";
+                    if (exePath != null)
+                    {
+                        var versionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(exePath);
+                        return $"{versionInfo.FileMajorPart}.{versionInfo.FileMinorPart}.{versionInfo.FileBuildPart}.{versionInfo.FilePrivatePart}";
+                    }
                 }
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to get game version: {ex.Message}");
+                logger.Error($"Failed to get game version: {ex.Message}");
             }
             
             return Constants.NullVersion;
@@ -241,28 +233,28 @@ namespace CLASSIC.Services
         
         public void GenerateDocsPaths()
         {
-            _logger.Debug("Initiated docs path generation");
+            logger.Debug("Initiated docs path generation");
             
-            var docsPath = _config.GetSetting<string>(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Root_Folder_Docs");
-            var xseAcronym = _config.GetSetting<string>(YamlStore.Game, $"Game{_gameVars.VR}_Info.XSE_Acronym");
-            var xseAcronymBase = _config.GetSetting<string>(YamlStore.Game, "Game_Info.XSE_Acronym");
+            var docsPath = config.GetSetting<string>(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Root_Folder_Docs");
+            var xseAcronym = config.GetSetting<string>(YamlStore.Game, $"Game{gameVars.Vr}_Info.XSE_Acronym");
+            var xseAcronymBase = config.GetSetting<string>(YamlStore.Game, "Game_Info.XSE_Acronym");
             
             if (string.IsNullOrEmpty(docsPath) || string.IsNullOrEmpty(xseAcronym) || string.IsNullOrEmpty(xseAcronymBase))
             {
-                _logger.Error("Docs path or XSE acronym is missing");
+                logger.Error("Docs path or XSE acronym is missing");
                 return;
             }
             
-            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Docs_Folder_XSE", 
+            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Docs_Folder_XSE", 
                 Path.Combine(docsPath, xseAcronymBase));
                 
-            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Docs_File_PapyrusLog", 
+            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Docs_File_PapyrusLog", 
                 Path.Combine(docsPath, "Logs", "Script", "Papyrus.0.log"));
                 
-            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Docs_File_WryeBashPC", 
+            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Docs_File_WryeBashPC", 
                 Path.Combine(docsPath, "ModChecker.html"));
                 
-            _config.SetSetting(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Docs_File_XSE", 
+            config.SetSetting(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Docs_File_XSE", 
                 Path.Combine(docsPath, xseAcronymBase, $"{xseAcronym.ToLower()}.log"));
         }
     }

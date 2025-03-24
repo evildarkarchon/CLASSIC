@@ -13,7 +13,7 @@ namespace CLASSIC.Models
         private string _vr = string.Empty;
         private GameId _game = GameId.Fallout4;
         
-        public string VR
+        public string Vr
         { 
             get => _vr;
             set => this.RaiseAndSetIfChanged(ref _vr, value);
@@ -26,17 +26,18 @@ namespace CLASSIC.Models
         }
         
         public string GameName => Game.ToString();
-        public string GameNameWithVR => $"{Game}{VR}";
+        public string GameNameWithVr => $"{Game}{Vr}";
     }
     
-    public class GameInfo : ReactiveObject
+    public class GameInfo(string gamePath, string docsPath, string gameVersion, string crashgenName, string xseAcronym)
+        : ReactiveObject
     {
-        private string _gamePath;
-        private string _docsPath;
-        private string _gameVersion;
-        private string _crashgenName;
-        private string _xseAcronym;
-        
+        private string _gamePath = gamePath;
+        private string _docsPath = docsPath;
+        private string _gameVersion = gameVersion;
+        private string _crashgenName = crashgenName;
+        private string _xseAcronym = xseAcronym;
+
         public string GamePath
         {
             get => _gamePath;
@@ -61,7 +62,7 @@ namespace CLASSIC.Models
             set => this.RaiseAndSetIfChanged(ref _crashgenName, value);
         }
         
-        public string XSEAcronym
+        public string XseAcronym
         {
             get => _xseAcronym;
             set => this.RaiseAndSetIfChanged(ref _xseAcronym, value);

@@ -174,7 +174,7 @@
                     
                     <DockPanel Margin="0,10">
                         <Label Content="Update Source" VerticalAlignment="Center"/>
-                        <ComboBox Margin="10,0,0,0" Items="{Binding UpdateSourceOptions}" 
+                        <ComboBox Margin="10,0,0,0" ItemsSource="{Binding UpdateSourceOptions}" 
                                   SelectedItem="{Binding UpdateSource}"
                                   HorizontalAlignment="Left" Width="120"
                                   ToolTip.Tip="Select the source to check for updates. Nexus = stable, GitHub = latest, Both = check both"/>

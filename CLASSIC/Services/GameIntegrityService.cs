@@ -8,29 +8,18 @@ using CLASSIC.Models;
 
 namespace CLASSIC.Services
 {
-    public class GameIntegrityService
+    public class GameIntegrityService(ConfigurationService config, Logger logger, GameVariables gameVars)
     {
-        private readonly ConfigurationService _config;
-        private readonly Logger _logger;
-        private readonly GameVariables _gameVars;
-        
-        public GameIntegrityService(ConfigurationService config, Logger logger, GameVariables gameVars)
-        {
-            _config = config;
-            _logger = logger;
-            _gameVars = gameVars;
-        }
-        
         public string CheckGameIntegrity()
         {
-            _logger.Debug("Initiated game integrity check");
+            logger.Debug("Initiated game integrity check");
             var messageBuilder = new StringBuilder();
             
-            var steamIniLocal = _config.GetSetting<string>(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_File_SteamINI");
-            var exeHashOld = _config.GetSetting<string>(YamlStore.Game, "Game_Info.EXE_HashedOLD");
-            var exeHashNew = _config.GetSetting<string>(YamlStore.Game, "Game_Info.EXE_HashedNEW");
-            var gameExeLocal = _config.GetSetting<string>(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_File_EXE");
-            var rootName = _config.GetSetting<string>(YamlStore.Game, $"Game{_gameVars.VR}_Info.Main_Root_Name");
+            var steamIniLocal = config.GetSetting<string>(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_File_SteamINI");
+            var exeHashOld = config.GetSetting<string>(YamlStore.Game, "Game_Info.EXE_HashedOLD");
+            var exeHashNew = config.GetSetting<string>(YamlStore.Game, "Game_Info.EXE_HashedNEW");
+            var gameExeLocal = config.GetSetting<string>(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_File_EXE");
+            var rootName = config.GetSetting<string>(YamlStore.Game, $"Game{gameVars.Vr}_Info.Main_Root_Name");
             
             if (string.IsNullOrEmpty(exeHashOld) || string.IsNullOrEmpty(rootName))
             {
@@ -67,7 +56,7 @@ namespace CLASSIC.Services
                 }
                 else
                 {
-                    var rootWarn = _config.GetSetting<string>(YamlStore.Main, "Warnings_GAME.warn_root_path");
+                    var rootWarn = config.GetSetting<string>(YamlStore.Main, "Warnings_GAME.warn_root_path");
                     if (!string.IsNullOrEmpty(rootWarn))
                     {
                         messageBuilder.AppendLine(rootWarn);
@@ -78,18 +67,18 @@ namespace CLASSIC.Services
             return messageBuilder.ToString();
         }
         
-        public string CheckXSEIntegrity()
+        public string CheckXseIntegrity()
         {
-            _logger.Debug("Initiated XSE integrity check");
+            logger.Debug("Initiated XSE integrity check");
             var messageBuilder = new StringBuilder();
             var failedList = new StringBuilder();
             
-            var catchErrors = _config.GetSetting<string[]>(YamlStore.Main, "catch_log_errors") ?? Array.Empty<string>();
-            var xseAcronym = _config.GetSetting<string>(YamlStore.Game, $"Game{_gameVars.VR}_Info.XSE_Acronym");
-            var xseLogFile = _config.GetSetting<string>(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Docs_File_XSE");
-            var xseFullName = _config.GetSetting<string>(YamlStore.Game, $"Game{_gameVars.VR}_Info.XSE_FullName");
-            var xseVerLatest = _config.GetSetting<string>(YamlStore.Game, $"Game{_gameVars.VR}_Info.XSE_Ver_Latest");
-            var adlibFileStr = _config.GetSetting<string>(YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_File_AddressLib");
+            var catchErrors = config.GetSetting<string[]>(YamlStore.Main, "catch_log_errors") ?? [];
+            var xseAcronym = config.GetSetting<string>(YamlStore.Game, $"Game{gameVars.Vr}_Info.XSE_Acronym");
+            var xseLogFile = config.GetSetting<string>(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Docs_File_XSE");
+            var xseFullName = config.GetSetting<string>(YamlStore.Game, $"Game{gameVars.Vr}_Info.XSE_FullName");
+            var xseVerLatest = config.GetSetting<string>(YamlStore.Game, $"Game{gameVars.Vr}_Info.XSE_Ver_Latest");
+            var adlibFileStr = config.GetSetting<string>(YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_File_AddressLib");
             
             if (string.IsNullOrEmpty(xseAcronym) || string.IsNullOrEmpty(xseFullName) || string.IsNullOrEmpty(xseVerLatest))
             {
@@ -104,7 +93,7 @@ namespace CLASSIC.Services
             }
             else if (!string.IsNullOrEmpty(adlibFileStr))
             {
-                var warnAdlib = _config.GetSetting<string>(YamlStore.Game, "Warnings_MODS.Warn_ADLIB_Missing");
+                var warnAdlib = config.GetSetting<string>(YamlStore.Game, "Warnings_MODS.Warn_ADLIB_Missing");
                 if (!string.IsNullOrEmpty(warnAdlib))
                 {
                     messageBuilder.AppendLine(warnAdlib);
@@ -112,7 +101,7 @@ namespace CLASSIC.Services
             }
             else
             {
-                messageBuilder.AppendLine($"❌ Value for Address Library is invalid or missing from CLASSIC {_gameVars.Game} Local.yaml!");
+                messageBuilder.AppendLine($"❌ Value for Address Library is invalid or missing from CLASSIC {gameVars.Game} Local.yaml!");
                 messageBuilder.AppendLine("-----");
             }
             
@@ -131,7 +120,7 @@ namespace CLASSIC.Services
                 }
                 else
                 {
-                    var warnOutdated = _config.GetSetting<string>(YamlStore.Game, "Warnings_XSE.Warn_Outdated");
+                    var warnOutdated = config.GetSetting<string>(YamlStore.Game, "Warnings_XSE.Warn_Outdated");
                     if (!string.IsNullOrEmpty(warnOutdated))
                     {
                         messageBuilder.AppendLine(warnOutdated);
@@ -168,19 +157,19 @@ namespace CLASSIC.Services
             return messageBuilder.ToString();
         }
         
-        public string CheckXSEHashes()
+        public string CheckXseHashes()
         {
-            _logger.Debug("Initiated XSE file hash check");
+            logger.Debug("Initiated XSE file hash check");
             var messageBuilder = new StringBuilder();
             bool xseScriptMissing = false;
             bool xseScriptMismatch = false;
             
-            var xseHashedScripts = _config.GetSetting<Dictionary<string, string>>(
-                YamlStore.Game, $"Game{_gameVars.VR}_Info.XSE_HashedScripts") ?? 
+            var xseHashedScripts = config.GetSetting<Dictionary<string, string>>(
+                YamlStore.Game, $"Game{gameVars.Vr}_Info.XSE_HashedScripts") ?? 
                 new Dictionary<string, string>();
                 
-            var gameFolderScripts = _config.GetSetting<string>(
-                YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Game_Folder_Scripts");
+            var gameFolderScripts = config.GetSetting<string>(
+                YamlStore.GameLocal, $"Game{gameVars.Vr}_Info.Game_Folder_Scripts");
                 
             if (string.IsNullOrEmpty(gameFolderScripts))
             {
@@ -200,7 +189,7 @@ namespace CLASSIC.Services
                 }
                 else
                 {
-                    xseHashedScriptsLocal[key] = null;
+                    xseHashedScriptsLocal[key] = null!;
                 }
             }
             
@@ -215,13 +204,7 @@ namespace CLASSIC.Services
                     {
                         // Hash matches, file is good
                     }
-                    else if (localHash == null) // File is missing
-                    {
-                        messageBuilder.AppendLine($"❌ CAUTION : {key} Script Extender file is missing from your game Scripts folder!");
-                        messageBuilder.AppendLine("-----");
-                        xseScriptMissing = true;
-                    }
-                    else // Hash mismatch
+                    else
                     {
                         messageBuilder.AppendLine($"[!] CAUTION : {key} Script Extender file is outdated or overridden by another mod!");
                         messageBuilder.AppendLine("-----");
@@ -233,7 +216,7 @@ namespace CLASSIC.Services
             // Add warnings if missing or mismatched files found
             if (xseScriptMissing)
             {
-                var warnMissing = _config.GetSetting<string>(YamlStore.Game, "Warnings_XSE.Warn_Missing");
+                var warnMissing = config.GetSetting<string>(YamlStore.Game, "Warnings_XSE.Warn_Missing");
                 if (!string.IsNullOrEmpty(warnMissing))
                 {
                     messageBuilder.AppendLine(warnMissing);
@@ -242,7 +225,7 @@ namespace CLASSIC.Services
             
             if (xseScriptMismatch)
             {
-                var warnMismatch = _config.GetSetting<string>(YamlStore.Game, "Warnings_XSE.Warn_Mismatch");
+                var warnMismatch = config.GetSetting<string>(YamlStore.Game, "Warnings_XSE.Warn_Mismatch");
                 if (!string.IsNullOrEmpty(warnMismatch))
                 {
                     messageBuilder.AppendLine(warnMismatch);
@@ -258,10 +241,10 @@ namespace CLASSIC.Services
             return messageBuilder.ToString();
         }
         
-        private string CalculateFileHash(string filePath)
+        private string CalculateFileHash(string? filePath)
         {
             using var sha256 = SHA256.Create();
-            using var stream = File.OpenRead(filePath);
+            using var stream = File.OpenRead(filePath ?? string.Empty);
             var hash = sha256.ComputeHash(stream);
             return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
         }

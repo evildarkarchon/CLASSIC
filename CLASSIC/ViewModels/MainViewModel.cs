@@ -1,15 +1,16 @@
 ﻿// ViewModels/MainViewModel.cs
+
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reactive;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Avalonia.Controls;
-using ReactiveUI;
 using CLASSIC.Models;
 using CLASSIC.Services;
-using DynamicData;
+using ReactiveUI;
+using Avalonia.Platform.Storage;
 
 namespace CLASSIC.ViewModels
 {
@@ -23,9 +24,9 @@ namespace CLASSIC.ViewModels
         private readonly GameVariables _gameVars;
         
         private string _outputText = string.Empty;
-        private string _customScanPath = string.Empty;
-        private string _modsFolderPath = string.Empty;
-        private bool _isBusy = false;
+        private string? _customScanPath = string.Empty;
+        private string? _modsFolderPath = string.Empty;
+        private bool _isBusy;
         
         public string OutputText 
         { 
@@ -33,7 +34,7 @@ namespace CLASSIC.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _outputText, value);
         }
         
-        public string CustomScanPath
+        public string? CustomScanPath
         {
             get => _customScanPath;
             set
@@ -43,7 +44,7 @@ namespace CLASSIC.ViewModels
             }
         }
         
-        public string ModsFolderPath
+        public string? ModsFolderPath
         {
             get => _modsFolderPath;
             set
@@ -84,7 +85,7 @@ namespace CLASSIC.ViewModels
             set 
             { 
                 _config.SetSetting(YamlStore.Settings, "CLASSIC_Settings.VR Mode", value);
-                _gameVars.VR = value ? "VR" : string.Empty;
+                _gameVars.Vr = value ? "VR" : string.Empty;
             }
         }
         
@@ -102,17 +103,17 @@ namespace CLASSIC.ViewModels
         
         public bool AudioNotifications
         {
-            get => _config.GetSetting<bool>(YamlStore.Settings, "CLASSIC_Settings.Audio Notifications", true);
+            get => _config.GetSetting(YamlStore.Settings, "CLASSIC_Settings.Audio Notifications", true);
             set => _config.SetSetting(YamlStore.Settings, "CLASSIC_Settings.Audio Notifications", value);
         }
         
-        public string UpdateSource
+        public string? UpdateSource
         {
             get => _config.GetSetting<string>(YamlStore.Settings, "CLASSIC_Settings.Update Source", "Both");
             set => _config.SetSetting(YamlStore.Settings, "CLASSIC_Settings.Update Source", value);
         }
         
-        public ObservableCollection<string> UpdateSourceOptions { get; } = new ObservableCollection<string> { "Nexus", "GitHub", "Both" };
+        public ObservableCollection<string> UpdateSourceOptions { get; } = ["Nexus", "GitHub", "Both"];
         
         // Commands
         public ReactiveCommand<Unit, Unit> ScanCrashLogsCommand { get; }
@@ -199,7 +200,7 @@ namespace CLASSIC.ViewModels
                     _logger.Debug($"> > > STARTED {_config.GetSetting<string>(YamlStore.Main, "CLASSIC_Info.version")}");
                     
                     var gamePath = _config.GetSetting<string>(
-                        YamlStore.GameLocal, $"Game{_gameVars.VR}_Info.Root_Folder_Game");
+                        YamlStore.GameLocal, $"Game{_gameVars.Vr}_Info.Root_Folder_Game");
                     
                     if (string.IsNullOrEmpty(gamePath))
                     {
@@ -286,8 +287,8 @@ namespace CLASSIC.ViewModels
                 
                 await Task.Run(() => {
                     var result = _integrityService.CheckGameIntegrity();
-                    result += _integrityService.CheckXSEIntegrity();
-                    result += _integrityService.CheckXSEHashes();
+                    result += _integrityService.CheckXseIntegrity();
+                    result += _integrityService.CheckXseHashes();
                     
                     // More scan methods would be implemented here
                     
@@ -321,31 +322,44 @@ namespace CLASSIC.ViewModels
         
         private async Task SelectCustomScanFolder()
         {
-            var dialog = new OpenFolderDialog
+            // Get the current top-level window
+            var topLevel = TopLevel.GetTopLevel(Avalonia.Application.Current?.ApplicationLifetime is 
+                Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop ? 
+                desktop.MainWindow : null);
+            if (topLevel != null)
             {
-                Title = "Select Custom Scan Folder"
-            };
-            
-            var result = await dialog.ShowAsync(null);
-            
-            if (!string.IsNullOrEmpty(result))
-            {
-                CustomScanPath = result;
+                var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+                {
+                    Title = "Select Custom Scan Folder",
+                    AllowMultiple = false
+                });
+                
+                if (folders.Count > 0)
+                {
+                    CustomScanPath = folders[0].Path.LocalPath;
+                }
             }
         }
         
         private async Task SelectModsFolder()
         {
-            var dialog = new OpenFolderDialog
+            // Get the current top-level window
+            var topLevel = TopLevel.GetTopLevel(Avalonia.Application.Current?.ApplicationLifetime is
+                Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop ?
+                desktop.MainWindow : null);
+        
+            if (topLevel != null)
             {
-                Title = "Select Staging Mods Folder"
-            };
-            
-            var result = await dialog.ShowAsync(null);
-            
-            if (!string.IsNullOrEmpty(result))
-            {
-                ModsFolderPath = result;
+                var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+                {
+                    Title = "Select Staging Mods Folder",
+                    AllowMultiple = false
+                });
+        
+                if (folders.Count > 0)
+                {
+                    ModsFolderPath = folders[0].Path.LocalPath;
+                }
             }
         }
         
@@ -425,7 +439,7 @@ namespace CLASSIC.ViewModels
         {
             try
             {
-                using var process = new System.Diagnostics.Process();
+                using var process = new Process();
                 process.StartInfo.FileName = path;
                 process.StartInfo.UseShellExecute = true;
                 process.Start();
