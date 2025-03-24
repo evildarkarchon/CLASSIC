@@ -4,6 +4,7 @@
         xmlns:vm="using:CLASSIC.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:CLASSIC.Converters"
         mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="950"
         x:Class="CLASSIC.Views.MainWindow"
         x:DataType="vm:MainViewModel"
@@ -11,6 +12,9 @@
         Title="Crash Log Auto Scanner &amp; Setup Integrity Checker"
         Width="700" Height="950" CanResize="False"
         Background="#2b2b2b">
+    <Window.Resources>
+        <converters:BackupOptionsConverter x:Key="BackupOptionsConverter"/>
+    </Window.Resources>
 
     <Design.DataContext>
         <vm:MainViewModel/>
@@ -118,14 +122,14 @@
                     <DockPanel>
                         <Label Content="STAGING MODS FOLDER" Width="180" VerticalAlignment="Center"/>
                         <Button Content="Browse Folder" Command="{Binding SelectModsFolderCommand}" DockPanel.Dock="Right" Margin="5,0,0,0"/>
-                        <TextBox Text="{Binding ModsFolderPath}" Margin="5,0" ToolTip="Select the folder where you stage your mods."
+                        <TextBox Text="{Binding ModsFolderPath}" Margin="5,0" ToolTip.Tip="Select the folder where you stage your mods."
                                  Watermark="Optional: Select the folder where you stage your mods."/>
                     </DockPanel>
                     
                     <DockPanel>
                         <Label Content="CUSTOM SCAN FOLDER" Width="180" VerticalAlignment="Center"/>
                         <Button Content="Browse Folder" Command="{Binding SelectCustomScanFolderCommand}" DockPanel.Dock="Right" Margin="5,0,0,0"/>
-                        <TextBox Text="{Binding CustomScanPath}" Margin="5,0" ToolTip="Select a custom folder to scan for log files."
+                        <TextBox Text="{Binding CustomScanPath}" Margin="5,0" ToolTip.Tip="Select a custom folder to scan for log files."
                                  Watermark="Optional: Select a custom folder to scan for log files."/>
                     </DockPanel>
                     
@@ -173,7 +177,7 @@
                         <ComboBox Margin="10,0,0,0" Items="{Binding UpdateSourceOptions}" 
                                   SelectedItem="{Binding UpdateSource}"
                                   HorizontalAlignment="Left" Width="120"
-                                  ToolTip="Select the source to check for updates. Nexus = stable, GitHub = latest, Both = check both"/>
+                                  ToolTip.Tip="Select the source to check for updates. Nexus = stable, GitHub = latest, Both = check both"/>
                     </DockPanel>
                     
                     <!-- Separator -->
@@ -243,13 +247,13 @@
                     <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
                         <Button Grid.Column="0" Content="BACKUP XSE" 
                                 Command="{Binding BackupCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=XSE}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=XSE}"/>
                         <Button Grid.Column="1" Content="RESTORE XSE" 
                                 Command="{Binding RestoreCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=XSE}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=XSE}"/>
                         <Button Grid.Column="2" Content="REMOVE XSE" 
                                 Command="{Binding RemoveCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=XSE}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=XSE}"/>
                     </Grid>
                     
                     <!-- RESHADE Backup Section -->
@@ -258,13 +262,13 @@
                     <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
                         <Button Grid.Column="0" Content="BACKUP RESHADE" 
                                 Command="{Binding BackupCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=RESHADE}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=RESHADE}"/>
                         <Button Grid.Column="1" Content="RESTORE RESHADE" 
                                 Command="{Binding RestoreCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=RESHADE}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=RESHADE}"/>
                         <Button Grid.Column="2" Content="REMOVE RESHADE" 
                                 Command="{Binding RemoveCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=RESHADE}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=RESHADE}"/>
                     </Grid>
                     
                     <!-- VULKAN Backup Section -->
@@ -273,13 +277,13 @@
                     <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
                         <Button Grid.Column="0" Content="BACKUP VULKAN" 
                                 Command="{Binding BackupCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=VULKAN}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=VULKAN}"/>
                         <Button Grid.Column="1" Content="RESTORE VULKAN" 
                                 Command="{Binding RestoreCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=VULKAN}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=VULKAN}"/>
                         <Button Grid.Column="2" Content="REMOVE VULKAN" 
                                 Command="{Binding RemoveCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=VULKAN}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=VULKAN}"/>
                     </Grid>
                     
                     <!-- ENB Backup Section -->
@@ -288,13 +292,13 @@
                     <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto">
                         <Button Grid.Column="0" Content="BACKUP ENB" 
                                 Command="{Binding BackupCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=ENB}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=ENB}"/>
                         <Button Grid.Column="1" Content="RESTORE ENB" 
                                 Command="{Binding RestoreCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=ENB}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=ENB}"/>
                         <Button Grid.Column="2" Content="REMOVE ENB" 
                                 Command="{Binding RemoveCommand}" 
-                                CommandParameter="{Binding BackupOptions, BackupOptions.Type=ENB}"/>
+                                CommandParameter="{Binding BackupOptions, Converter={StaticResource BackupOptionsConverter}, ConverterParameter=ENB}"/>
                     </Grid>
                     
                     <!-- Open Backups Folder Button -->

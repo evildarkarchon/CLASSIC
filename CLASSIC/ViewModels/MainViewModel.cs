@@ -15,6 +15,7 @@ namespace CLASSIC.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        public BackupOptions BackupOptions { get; set; } = new BackupOptions();
         private readonly ConfigurationService _config;
         private readonly Logger _logger;
         private readonly GamePathService _pathService;
