@@ -182,7 +182,7 @@ namespace CLASSIC.Services
             if (string.IsNullOrEmpty(exePath) || string.IsNullOrEmpty(pluginsPath))
                 return;
                 
-            var gameVersion = GetGameVersionFromFile(exePath);
+            var gameVersion = GetExeVersion(exePath);
             var xseAcronymBase = config.GetSetting<string>(YamlStore.Game, "Game_Info.XSE_Acronym");
             
             if (gameVars.Game == GameId.Fallout4)
@@ -210,7 +210,7 @@ namespace CLASSIC.Services
             }
         }
         
-        private string GetGameVersionFromFile(string? exePath)
+        private string GetExeVersion(string? exePath)
         {
             try
             {
