@@ -1,0 +1,88 @@
+Core Features to Migrate
+
+Crash Log Scanning
+
+The core crashlogs_scan() functionality from CLASSIC_ScanLogs.py needs to be implemented in C#
+This includes parsing crash logs, detecting patterns, and generating reports
+
+
+Game File Scanning
+
+The functionality from scan_mods_unpacked() and scan_mods_archived() in CLASSIC_ScanGame.py
+Detection of problematic mod files, texture issues, and other game file integrity checks
+
+
+Pastebin Fetch
+
+The pastebin_fetch() function to download and process crash logs from Pastebin
+
+
+Papyrus Log Monitoring
+
+The papyrus_logging() function and real-time monitoring capabilities
+
+
+Configuration Management
+
+The YAML configuration handling is partially implemented but needs to be completed
+Specifically, the handling of different game variants (VR vs non-VR)
+
+
+Game File Management
+
+The game_files_manage() functionality for backing up, restoring, and removing game files
+
+
+Update Checking
+
+The is_latest_version() functionality to check for updates from GitHub or Nexus
+
+
+
+UI Components to Complete
+
+Main Window
+
+The UI is partially implemented but needs additional controls and functionality
+
+
+About Dialog
+
+The custom about dialog needs to be implemented in Avalonia
+
+
+Help Dialog
+
+Showing help text from YAML settings
+
+
+Custom Path Dialogs
+
+Dialogs for setting custom game paths and scan paths
+
+
+Progress Indicators
+
+UI elements to show scanning progress
+
+
+
+Specific Implementation Details
+
+Async Operations
+
+All long-running operations should be properly implemented as async tasks
+
+
+Audio Notifications
+
+The sound playing functionality needs to be implemented in C# (using Avalonia's audio capabilities)
+
+
+Exception Handling
+
+Comprehensive error handling throughout the application
+
+File Operations
+
+File hashing, texture scanning, BA2 file analysis
