@@ -21,13 +21,6 @@ Papyrus Log Monitoring
 
 The papyrus_logging() function and real-time monitoring capabilities
 
-
-Configuration Management
-
-The YAML configuration handling is partially implemented but needs to be completed
-Specifically, the handling of different game variants (VR vs non-VR)
-
-
 Game File Management
 
 The game_files_manage() functionality for backing up, restoring, and removing game files
@@ -72,12 +65,6 @@ Specific Implementation Details
 Async Operations
 
 All long-running operations should be properly implemented as async tasks
-
-
-Audio Notifications
-
-The sound playing functionality needs to be implemented in C# (using Avalonia's audio capabilities)
-
 
 Exception Handling
 
