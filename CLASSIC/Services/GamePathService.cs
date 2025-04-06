@@ -8,7 +8,7 @@ using CLASSIC.Models;
 
 namespace CLASSIC.Services
 {
-    public class GamePathService(ConfigurationService config, Logger logger, GameVariables gameVars)
+    public class GamePathService(ConfigurationService config, LoggingService logger, GameVariables gameVars)
     {
         public void FindGamePath()
         {

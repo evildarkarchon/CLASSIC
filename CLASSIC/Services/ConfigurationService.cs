@@ -12,12 +12,12 @@
             {
                 private readonly Dictionary<string, Dictionary<string, object?>> _yamlCache = new();
                 private readonly Dictionary<string, DateTime> _fileModTimes = new();
-                private readonly Logger _logger;
+                private readonly LoggingService _logger;
         
                 public GameId GameId { get; private set; } = GameId.Fallout4;
                 public string VrSuffix { get; private set; }
         
-                public ConfigurationService(Logger logger)
+                public ConfigurationService(LoggingService logger)
                 {
                     _logger = logger;
         

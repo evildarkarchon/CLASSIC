@@ -8,7 +8,7 @@ using CLASSIC.Models;
 
 namespace CLASSIC.Services
 {
-    public class GameIntegrityService(ConfigurationService config, Logger logger, GameVariables gameVars)
+    public class GameIntegrityService(ConfigurationService config, LoggingService logger, GameVariables gameVars)
     {
         public string CheckGameIntegrity()
         {

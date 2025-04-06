@@ -8,6 +8,7 @@ using CLASSIC.Services;
 using CLASSIC.ViewModels;
 using CLASSIC.Views;
 using Microsoft.Extensions.DependencyInjection;
+using NLog;
 
 namespace CLASSIC
 {
@@ -26,7 +27,7 @@ namespace CLASSIC
             var services = new ServiceCollection();
             
             // Register services
-            services.AddSingleton<Logger>();
+            services.AddSingleton<LoggingService>();
             services.AddSingleton<GameVariables>();
             services.AddSingleton<ConfigurationService>();
             services.AddSingleton<GamePathService>();
@@ -37,11 +38,22 @@ namespace CLASSIC
             
             _serviceProvider = services.BuildServiceProvider();
             
+            // Initialize logging
+            var logger = _serviceProvider.GetRequiredService<LoggingService>();
+            logger.Info("Application starting");
+            
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = _serviceProvider.GetRequiredService<MainViewModel>()
+                };
+                
+                // Handle application exit
+                desktop.Exit += (_, _) => 
+                {
+                    logger.Info("Application exiting");
+                    LogManager.Shutdown();
                 };
             }
 

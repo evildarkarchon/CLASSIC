@@ -18,9 +18,9 @@ namespace CLASSIC.ViewModels
     {
         public BackupOptions BackupOptions { get; set; } = new BackupOptions();
         private readonly ConfigurationService _config;
-        private readonly Logger _logger;
         private readonly GamePathService _pathService;
         private readonly GameIntegrityService _integrityService;
+        private readonly LoggingService _logger;
         private readonly GameVariables _gameVars;
         
         private string _outputText = string.Empty;
@@ -61,7 +61,7 @@ namespace CLASSIC.ViewModels
         }
         
         // Settings properties
-        public bool FCXMode
+        public bool FcxMode
         {
             get => _config.GetSetting<bool>(YamlStore.Settings, "CLASSIC_Settings.FCX Mode");
             set => _config.SetSetting(YamlStore.Settings, "CLASSIC_Settings.FCX Mode", value);
@@ -79,7 +79,7 @@ namespace CLASSIC.ViewModels
             set => _config.SetSetting(YamlStore.Settings, "CLASSIC_Settings.Update Check", value);
         }
         
-        public bool VRMode
+        public bool VrMode
         {
             get => _config.GetSetting<bool>(YamlStore.Settings, "CLASSIC_Settings.VR Mode");
             set 
@@ -89,7 +89,7 @@ namespace CLASSIC.ViewModels
             }
         }
         
-        public bool ShowFormIDValues
+        public bool ShowFormIdValues
         {
             get => _config.GetSetting<bool>(YamlStore.Settings, "CLASSIC_Settings.Show FormID Values");
             set => _config.SetSetting(YamlStore.Settings, "CLASSIC_Settings.Show FormID Values", value);
@@ -136,7 +136,7 @@ namespace CLASSIC.ViewModels
         
         public MainViewModel(
             ConfigurationService config,
-            Logger logger,
+            LoggingService logger,
             GamePathService pathService,
             GameIntegrityService integrityService,
             GameVariables gameVars)

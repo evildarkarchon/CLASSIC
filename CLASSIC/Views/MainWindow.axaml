@@ -163,11 +163,11 @@
                     <Label Content="CLASSIC SETTINGS" HorizontalAlignment="Center" FontWeight="Bold" FontSize="14"/>
                     
                     <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,10">
-                        <CheckBox Grid.Row="0" Grid.Column="0" Content="FCX MODE" IsChecked="{Binding FCXMode}"/>
+                        <CheckBox Grid.Row="0" Grid.Column="0" Content="FCX MODE" IsChecked="{Binding FcxMode}"/>
                         <CheckBox Grid.Row="0" Grid.Column="1" Content="SIMPLIFY LOGS" IsChecked="{Binding SimplifyLogs}"/>
                         <CheckBox Grid.Row="0" Grid.Column="2" Content="UPDATE CHECK" IsChecked="{Binding UpdateCheck}"/>
-                        <CheckBox Grid.Row="1" Grid.Column="0" Content="VR MODE" IsChecked="{Binding VRMode}"/>
-                        <CheckBox Grid.Row="1" Grid.Column="1" Content="SHOW FID VALUES" IsChecked="{Binding ShowFormIDValues}"/>
+                        <CheckBox Grid.Row="1" Grid.Column="0" Content="VR MODE" IsChecked="{Binding VrMode}"/>
+                        <CheckBox Grid.Row="1" Grid.Column="1" Content="SHOW FID VALUES" IsChecked="{Binding ShowFormIdValues}"/>
                         <CheckBox Grid.Row="1" Grid.Column="2" Content="MOVE INVALID LOGS" IsChecked="{Binding MoveUnsolvedLogs}"/>
                         <CheckBox Grid.Row="2" Grid.Column="0" Content="AUDIO NOTIFICATIONS" IsChecked="{Binding AudioNotifications}"/>
                     </Grid>
