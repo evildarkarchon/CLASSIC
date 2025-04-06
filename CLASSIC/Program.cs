@@ -18,16 +18,16 @@ sealed class Program
         {
             // Configure NLog first
             var logConfig = new NLog.Config.LoggingConfiguration();
-            var logFile = new NLog.Targets.FileTarget("logfile") 
-            { 
+            var logFile = new NLog.Targets.FileTarget("logfile")
+            {
                 FileName = "${basedir}/CLASSIC Journal.log",
                 Layout = "${longdate} | ${level:uppercase=true} | ${message} ${exception:format=toString}"
             };
-            
+
             // Apply rules
             logConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logFile);
             LogManager.Configuration = logConfig;
-            
+
             // Start the application
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }

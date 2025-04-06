@@ -1,4 +1,5 @@
 // Views/MainWindow.axaml.cs
+
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -17,7 +18,7 @@ namespace CLASSIC.Views
         {
             AvaloniaXamlLoader.Load(this);
         }
-        
+
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
             Close();

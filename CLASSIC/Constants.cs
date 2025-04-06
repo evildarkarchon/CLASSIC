@@ -1,4 +1,5 @@
 ﻿// Constants.cs
+
 namespace CLASSIC
 {
     public static class Constants
