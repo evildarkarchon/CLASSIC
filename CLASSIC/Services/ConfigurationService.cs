@@ -37,11 +37,11 @@ public class ConfigurationService
         EnsureSettingsExist();
 
         // Set VR mode based on settings
-        bool vrMode = GetSetting<bool>(YamlStore.Settings, "CLASSIC_Settings.VR Mode");
+        var vrMode = GetSetting<bool>(YamlStore.Settings, "CLASSIC_Settings.VR Mode");
         _gameVars.Vr = vrMode ? "VR" : string.Empty;
 
         // Pre-load static YAML files
-        foreach (var path in _staticStores.Select(store => GetYamlPath(store)))
+        foreach (var path in _staticStores.Select(GetYamlPath))
         {
             LoadYaml(path);
         }
