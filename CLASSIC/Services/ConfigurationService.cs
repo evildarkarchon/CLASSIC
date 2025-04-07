@@ -327,22 +327,16 @@ public class ConfigurationService
     /// <returns>The parsed YAML data.</returns>
     private Dictionary<string, object?> LoadYaml(string yamlPath)
     {
-        if (!File.Exists(yamlPath))
+        // For settings and ignore files, we'll create them
+        if (yamlPath.EndsWith("CLASSIC Settings.yaml") || yamlPath.EndsWith("CLASSIC Ignore.yaml"))
         {
-            // For settings and ignore files, we'll create them
-            if (yamlPath.EndsWith("CLASSIC Settings.yaml") || yamlPath.EndsWith("CLASSIC Ignore.yaml"))
-            {
-                return new Dictionary<string, object?>();
-            }
+            return new Dictionary<string, object?>();
+        }
 
-            // For GameLocal, we'll create it in GenerateLocalYamlFile
-            if (yamlPath.Contains($"CLASSIC {_gameVars.Game}{_gameVars.Vr} Local.yaml"))
-            {
-                return new Dictionary<string, object?>();
-            }
-
-            // For all other files, throw an exception
-            throw new FileNotFoundException($"Required YAML file not found: {yamlPath}", yamlPath);
+        // For GameLocal, we'll create it in GenerateLocalYamlFile
+        if (yamlPath.Contains($"CLASSIC {_gameVars.Game}{_gameVars.Vr} Local.yaml"))
+        {
+            return new Dictionary<string, object?>();
         }
 
         // Check if this is a static store
@@ -407,7 +401,6 @@ public class ConfigurationService
         try
         {
             var serializer = new SerializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
             var yamlContent = serializer.Serialize(data);
