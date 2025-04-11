@@ -406,7 +406,7 @@ namespace CLASSIC.ViewModels
             {
                 IsBusy = true;
 
-                string operationName = operation.ToString().ToUpper();
+                var operationName = operation.ToString().ToUpper();
                 OutputText += $"\n\n{operationName} {options.Type} files, please wait...\n";
 
                 await Task.Run(() =>
